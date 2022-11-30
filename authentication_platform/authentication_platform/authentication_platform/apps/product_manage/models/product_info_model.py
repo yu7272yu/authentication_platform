@@ -1,6 +1,5 @@
 from django.db import models
 
-# from app_manage.models.base_model import BaseModel
 from user_manage.models.base_model import BaseModel
 
 

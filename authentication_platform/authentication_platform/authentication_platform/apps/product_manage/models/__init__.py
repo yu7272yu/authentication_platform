@@ -1,0 +1,5 @@
+from product_manage.models.functional_configure_model import FunctionConfigureModel
+from product_manage.models.functional_info_model import FunctionInfoModel
+from product_manage.models.node_info_model import NodeInfoModel
+from product_manage.models.product_info_model import ProductInfoModel
+from product_manage.models.product_version_model import ProductVersionModel

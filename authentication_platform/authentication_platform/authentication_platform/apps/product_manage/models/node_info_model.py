@@ -1,7 +1,5 @@
 from django.db import models
 
-from enterprise_manage.models.enterprise_info_model import EnterpriseInfoModel
-from product_manage.models.product_version_model import ProductVersionModel
 from user_manage.models.base_model import BaseModel
 
 
@@ -17,8 +15,8 @@ class NodeInfoModel(BaseModel):
     end_time = models.IntegerField(verbose_name='结束时间')
     description = models.TextField(verbose_name='功能描述', blank=True)
     mark = models.TextField(verbose_name='备注信息', blank=True)
-    sh_product_version = models.ForeignKey(to=ProductVersionModel, on_delete=models.PROTECT, verbose_name='产品版本id')
-    sh_enterprise_info = models.ForeignKey(to=EnterpriseInfoModel, on_delete=models.PROTECT, verbose_name='企业信息id')
+    sh_product_version = models.ForeignKey(to='product_manage.ProductVersionModel', on_delete=models.PROTECT, verbose_name='产品版本id')
+    sh_enterprise_info = models.ForeignKey(to='enterprise_manage.EnterpriseInfoModel', on_delete=models.PROTECT, verbose_name='企业信息id')
 
     class Meta:
         db_table = 'sh_node_info'

@@ -1,0 +1,1 @@
+from system_manage.models.notice_info_model import NoticeInfoModel

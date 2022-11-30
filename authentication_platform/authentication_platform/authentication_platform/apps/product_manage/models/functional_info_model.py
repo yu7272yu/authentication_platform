@@ -1,6 +1,6 @@
 from django.db import models
 
-from product_manage.models.product_info_model import ProductInfoModel
+
 from user_manage.models.base_model import BaseModel
 
 
@@ -11,4 +11,4 @@ class FunctionInfoModel(BaseModel):
     mark = models.TextField(verbose_name='备注信息', blank=True)
 
     class Meta:
-        db_table = 'sh_product_info'
+        db_table = 'sh_function_info'

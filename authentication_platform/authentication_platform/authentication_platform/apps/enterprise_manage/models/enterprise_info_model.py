@@ -1,4 +1,3 @@
-# coding=utf-8
 from django.db import models
 
 from user_manage.models.base_model import BaseModel
@@ -13,4 +12,4 @@ class EnterpriseInfoModel(BaseModel):
     mark = models.TextField(verbose_name='备注信息', blank=True)
 
     class Meta:
-        db_table = 'sh_product_info'
+        db_table = 'sh_enterprise_info'
