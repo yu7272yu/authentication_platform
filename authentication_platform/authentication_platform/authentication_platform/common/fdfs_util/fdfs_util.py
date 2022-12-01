@@ -5,6 +5,8 @@ from authentication_platform.common.logger import Logger
 from authentication_platform.common.constants import Constants
 from fdfs_client.client import *
 
+from config import Config
+
 
 # todo------------需要完善的功能
 class FastDfsUtil(object):
@@ -128,6 +130,23 @@ class FastDfsUtil(object):
             error_msg = 'delete--{}'.format(Constants.FDFS_DELETE_FAIL.format(e, traceback.print_exc()))
             Logger().error(error_msg, Constants.FDFS_LOG)
             return {'code': Constants.WEB_REQUEST_CODE_ERROR, 'msg': Constants.FDFS_DELETE_FAIL}
+
+    def upload_by_buffer_request(self, request, file_buffer):
+        file_ext_name = os.path.splitext(file_buffer.name)[1]
+        res = FastDfsUtil().upload_by_buffer(file_buffer.read(), file_ext_name)
+        if res['code'] == Constants.WEB_REQUEST_CODE_ERROR:
+            return res['code'], res['msg'], None
+        data = res['data']
+        # 组装url
+        # fdfs是否搭建在本机服务器
+        if Config.fdfs_host:
+            fdfs_nginx = 'http://' + request.get_host().split(':')[0] + ':' + Config.fdfs_nginx_port
+        else:
+            fdfs_nginx = Config.fdfs_nginx_ip
+        picture_url = fdfs_nginx + data['Remote file_id'].decode('utf-8')
+        remote_id = data['Remote file_id']
+
+        return res['code'], picture_url, remote_id
 
 
 if __name__ == '__main__':

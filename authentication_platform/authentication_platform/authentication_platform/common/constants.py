@@ -61,12 +61,11 @@ class Constants(object):
     # 【日志名称定义】
     WEB_REQUEST_LOG = 'web_request.log'
     # 日志名称按照模块名称来
+    ENTERPRISE_MANAGE_LOG = 'enterprise_manage.log'
     USER_MANAGE_LOG = 'user_manage.log'
+    PRODUCT_MANAGE_LOG = 'product_manage.log'
+    SYSTEM_MANAGE_LOG = 'system_manage.log'
     AUTH_CODE_MANAGE_LOG = 'auth_code_manage.log'
-    APP_MANAGE_LOG = 'app_manage.log'
-    THRESHOLD_MANAGE_LOG = 'threshold_manage.log'
-    RESOURCE_MANAGE_LOG = 'resource_manage.log'
-    PLAN_MANAGE_LOG = 'plan_manage.log'
     PLAN_SCHEDULE_LOG = 'scheduler.log'
     KAFKA_MSG_LOG = 'kafka_msg.log'
     FDFS_LOG = 'fdfs.log'
