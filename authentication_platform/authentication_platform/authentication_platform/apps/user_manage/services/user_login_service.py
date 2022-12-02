@@ -5,6 +5,8 @@ from authentication_platform.common.constants import Constants
 from authentication_platform.common.sha256_encryption import ShaEncryption
 from authentication_platform.common.jwt_token import JwtToken
 from authentication_platform.common.time_helper import TimeHelper
+from product_manage.models import NodeInfoModel
+from user_manage.models import UserInfoNodeInfoModel
 from user_manage.models.user_info_model import UserInfoModel
 from authentication_platform.common.logger import Logger
 
@@ -17,10 +19,9 @@ class UserLoginService(object):
 
     def user_login_service(self, user_info_obj):
         # 校验密码--获取当前用户的对象信息
-        print(user_info_obj.user_name)
         query_dict = {
-            'user_name__contains': user_info_obj.user_name,
-            'user_name': user_info_obj.user_name,
+            'account__contains': user_info_obj.account,
+            'account': user_info_obj.account,
             'data_status': Constants.DATA_IS_USED
         }
 
@@ -35,41 +36,50 @@ class UserLoginService(object):
             return {'code': Constants.WEB_REQUEST_CODE_ERROR, 'msg': Constants.PASSWORD_ERROR_MSG}
 
         # 密码校验
-        user_password = user_obj.user_password
+        user_password = user_obj.password
         # 加密用户传递密码作对比
-        origin_password = self.sha_encryption.add_sha256(user_info_obj.user_password, SECRET_KEY)
+        origin_password = self.sha_encryption.add_sha256(user_info_obj.password, SECRET_KEY)
 
         if user_password != origin_password:
             return {'code': Constants.WEB_REQUEST_CODE_ERROR, 'msg': Constants.PASSWORD_ERROR_MSG}
 
-        # token 生成基础数据---
+        # 通过 node_number 找到唯一的 NodeInfoModel
+        node_dict = {
+            'node_number': user_info_obj.node_number,
+            'data_status': Constants.DATA_IS_USED,
+        }
+        node_info = NodeInfoModel.objects.filter(**node_dict).first()
+        if not node_info:
+            return {'code': Constants.DATA_IS_USED, 'msg': '该节点不存在'}
+        # 通过 node_number sh_user_info_id
+        user_node_dict = {
+            'sh_user_info_id': user_obj.id,
+            'sh_node_info': node_info.id,
+            'data_status': Constants.DATA_IS_USED
+        }
+        user_node_info = UserInfoNodeInfoModel.objects.filter(**user_node_dict).first()
+        role_info = user_node_info.sh_user_role
+
+        # todo token 生成基础数据 account create_time
         user_info_dict = {
-            'user_name': user_obj.user_name,
+            'account': user_obj.account,
+            'node_number': user_obj.node_number,
+            'role_name': role_info.role_name,
             'create_time': self.time_helper.get_today()
         }
-        app_list = [one.app_name for one in user_obj.app_info.filter(data_status=Constants.DATA_IS_USED).all()]
-
-        user_alarm_dict = {'sh_user_info_id': user_obj.id, 'is_read': Constants.ALARM_INFO_NOT_READ}
-        user_alarm_info = ShUserInfoShAlarmInfo.objects.filter(**user_alarm_dict)
-        num = Constants.DATA_NUM
-        if user_alarm_info:
-            num = len(user_alarm_info)
 
         user_info_dict = {
             'token': self.jwt_token.create_jwt_token(user_info_dict),
             'id': user_obj.id,
-            'sh_user_info_id': user_obj.id,
             'user_name': user_obj.user_name,
-            'sh_user_role_id': user_obj.sh_user_role.id,
-            'role_name': user_obj.sh_user_role.role_name,
-            'nickname': user_obj.nickname,
-            'telephone': user_obj.telephone,
+            'account': user_obj.account,
+            'sh_user_role_id': role_info.id,
+            'role_name': role_info.role_name,
+            'phone_number': user_obj.phone_number,
             'email': user_obj.email,
-            'avatar_url': user_obj.avatar_url,
+            'avatar_link': user_obj.avatar_link,
             'create_time': self.time_helper.time_int_to_date(user_obj.create_time),
             'update_time': self.time_helper.time_int_to_date(user_obj.update_time),
-            'app_list': app_list,
-            'num': num
         }
 
         return {'code': Constants.WEB_REQUEST_CODE_OK, 'msg': Constants.LOGIN_SUCCESS, 'data': user_info_dict}

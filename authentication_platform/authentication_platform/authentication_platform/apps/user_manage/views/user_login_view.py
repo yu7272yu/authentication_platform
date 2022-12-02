@@ -52,20 +52,19 @@ class UserLoginView(BaseView):
         return {'code': Constants.WEB_REQUEST_CODE_OK, 'msg': Constants.WEB_REQUEST_MSG_OK, 'data': code_str}
 
     def user_login(self, request):
-        user_name = request.POST.get('user_name')
-        user_password = request.POST.get('user_password')
+        account = request.POST.get('account')
+        password = request.POST.get('password')
         user_code = request.POST.get('user_code')
-
-        print('user_name-{}'.format(user_name))
-        print('user_password-{}'.format(user_password))
+        # node_number 节点唯一标识符
+        node_number = request.POST.get('node_number')
 
         # todo--获取登录ip--如果1分钟内 当前ip登录超过3次 则不让登录
         user_ip = request.META['REMOTE_ADDR']
 
-        if not all([user_name, user_password, user_code]):
+        if not all([account, password, user_code]):
             return {'code': Constants.WEB_REQUEST_CODE_ERROR, 'msg': Constants.HAVE_NO_ENOUGH_PARAMS}
 
-        limit_login_flag = '{}'.format(user_ip)
+        limit_login_flag = str(user_ip)
         now_num = self.redis_client.get(limit_login_flag)
 
         # 有值和没有值需要分开处理
@@ -94,40 +93,8 @@ class UserLoginView(BaseView):
         self.redis_client.delete(user_code.lower())
         # 校验账号名称和密码
         user_info_obj = UserObject()
-        user_info_obj.user_name = user_name
-        user_info_obj.user_password = user_password
+        user_info_obj.account = account
+        user_info_obj.password = password
+        user_info_obj.node_number = node_number
 
-        json_data = self.user_login_service.user_login_service(user_info_obj)
-
-        return json_data
-
-    def login_video(self, request):
-        """
-        视频流路由。将其放入img标记的src属性中。
-        例如：<img src='https://ip:port/uri' >
-        """
-        # 视频处理
-        video = cv2.VideoCapture(Constants.LOGIN_VIDEO_PATH)
-        if not video.isOpened():
-            return {'code': Constants.WEB_REQUEST_CODE_ERROR, 'msg': Constants.VIDEO_CAN_NOT_OPEN}
-        # 使用流传输传输视频流
-        return StreamingHttpResponse(self.gen_display(video), content_type='multipart/x-mixed-replace; boundary=frame')
-
-    def gen_display(self, video):
-        """
-        视频流生成器功能。
-        """
-        while True:
-            # 读取图片
-            ret, frame = video.read()
-            if ret:
-                # 将图片进行解码
-                ret, frame = cv2.imencode('.jpeg', frame)
-                if ret:
-                    # 转换为byte类型的，存储在迭代器中
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + frame.tobytes() + b'\r\n')
-            # print('current--{}'.format(video.get(cv2.CAP_PROP_POS_FRAMES)))
-            # print('last--{}'.format(video.get(cv2.CAP_PROP_FRAME_COUNT)))
-            # if video.get(cv2.CAP_PROP_POS_FRAMES) >= video.get(cv2.CAP_PROP_FRAME_COUNT):
-            #    video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        return self.user_login_service.user_login_service(user_info_obj)

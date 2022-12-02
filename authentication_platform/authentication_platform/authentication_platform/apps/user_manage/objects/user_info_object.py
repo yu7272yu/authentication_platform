@@ -6,14 +6,19 @@ class UserObject(object):
     被操作用户对象
     """
     sh_user_info_id = None
+    sh_enterprise_info_id = None
+    sh_node_info_id = None
+    sh_notice_info_id = None
+    phone_number = None
     user_name = None
-    user_password = None
+    account = None
+    password = None
+    registration_mark = None
+    wechat = None
+    openid = None
     email = None
-    telephone = None
-    role_name = None
-    sh_user_role_id = None
-    avatar_picture = None
-    avatar_url = None
+    mark = None
+    node_number = None
     page = None
     limit = None
     create_start_time = None
